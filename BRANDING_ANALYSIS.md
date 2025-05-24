@@ -1,4 +1,4 @@
-Ar# mAIstro Studio Branding Analysis
+# mAIstro Studio Branding Analysis
 
 ## Repository Build Status
 
