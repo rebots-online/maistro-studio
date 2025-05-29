@@ -67,6 +67,7 @@ DockPage {
         case "extensions": root.central = extensionsComp; break
         case "audio": root.central = audioComp; break
         case "learn": root.central = learnComp; break
+        case "ai_features": root.central = aiFeaturesComp; break
         case "account": root.central = accountComp; break
         }
     }
@@ -138,6 +139,14 @@ DockPage {
 
         LearnPage {
             section: root.subSection
+        }
+    }
+
+    Component {
+        id: aiFeaturesComp
+
+        AiFeatures.AiGenerationPage {
+            // Props for AiGenerationPage if any
         }
     }
 }
