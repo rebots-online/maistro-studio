@@ -58,7 +58,7 @@ MusicSelectionContext AiController::extractMusicSelection() {
         context.debugInfo = "Error: Could not obtain INotationSelection interface. Cannot extract notes.";
         qWarning() << "AiController::extractMusicSelection:" << QString::fromStdString(context.debugInfo);
         // To allow testing the rest of the flow without a live selection:
-        // MusicalEvent dummyEvent1 = {60, 0, 1920, 0, 0}; 
+        // MusicalEvent dummyEvent1 = {60, 0, 1920, 0, 0};
         // context.events.push_back(dummyEvent1);
         // context.debugInfo += " Added 1 dummy note for testing.";
         return context;
@@ -106,7 +106,7 @@ MusicSelectionContext AiController::extractMusicSelection() {
     } else if (!selectedNotes.empty()) {
         context.debugInfo = "Warning: Notes were found in selection, but no events extracted (e.g., notes lacked parent chord).";
     }
-    
+
     // TODO: Extract KeySignature and Tempo from score context for the selection
     // This would involve getting the mu::engraving::Score* (e.g. from note->score() or selectionInterface->element()->score())
     // Then using the first event's staffIndex and startTimeTicks to query:
@@ -118,10 +118,11 @@ MusicSelectionContext AiController::extractMusicSelection() {
 }
 
 AiController::AiController(QObject *parent) : QObject(parent),
-    m_musicGenerator(nullptr), 
-    m_dataConverter(new AiMusicDataConverter())
+    m_musicGenerator(nullptr),
+    m_dataConverter(new AiMusicDataConverter()),
+    m_customModelPath("None selected") // Initialize custom model path
 {
-    qDebug() << "AiController created. AiMusicDataConverter instantiated.";
+    qDebug() << "AiController created. AiMusicDataConverter instantiated. Custom model path initial: " << m_customModelPath;
 }
 
 AiController::~AiController() {
@@ -178,6 +179,88 @@ void AiController::generateMusic(const QString& style, int tempo, const QString&
             emit generationComplete(false, resultMessage);
         }
     });
+}
+
+void AiController::initiateCustomModelSelection() {
+    qDebug() << "AiController::initiateCustomModelSelection called - simulating model selection.";
+    // In a real application, this would trigger a QFileDialog or similar.
+    // The dialog would then call setCustomModelPath upon successful selection.
+    QString dummyModelPath = "/mnt/models/custom_ai_model_v3_final.gguf"; // Example dummy path
+    // Simulate a slight delay before "selection" completes and calls setCustomModelPath
+    QTimer::singleShot(100, this, [this, dummyModelPath]() {
+        setCustomModelPath(dummyModelPath);
+    });
+}
+
+void AiController::setCustomModelPath(const QString& modelPath) {
+    qDebug() << "AiController::setCustomModelPath called with path:" << modelPath;
+    if (m_customModelPath != modelPath) {
+        // TODO: SECURITY - When loading the model from m_customModelPath, ensure robust path validation
+        // (e.g., check for directory traversal, ensure it's a valid/expected filetype or directory structure,
+        // check permissions, and consider sandboxing model loading/execution if possible).
+        // Also, consider privacy implications if the path itself is sensitive and gets logged extensively.
+        m_customModelPath = modelPath;
+        emit customModelPathChanged(m_customModelPath); // Notify QML of the change
+        // Provide general feedback via an existing signal
+        emit generationComplete(true, QString("Custom AI model path updated to: %1").arg(m_customModelPath));
+        qDebug() << "Custom model path set to:" << m_customModelPath;
+    } else {
+        qDebug() << "Custom model path is already set to:" << modelPath;
+        // Still emit generationComplete so UI can show a message if desired
+        emit generationComplete(true, QString("Custom AI model path remains: %1").arg(m_customModelPath));
+    }
+}
+
+void AiController::initiateStyleAnalysisFileSelection() {
+    qDebug() << "AiController::initiateStyleAnalysisFileSelection called - simulating file selection.";
+    QString dummyFilePath = "/path/to/placeholder_style_file.musicxml"; // Define dummyFilePath
+
+    // This is where C++ logic to open a native file dialog would be triggered.
+    // For example, using QFileDialog.
+    // After a file is selected, another signal might be emitted with the file path,
+    // or the path might be processed directly here to start analysis.
+    emit styleAnalysisFileSelectionRequested(QString("Simulated file selection: %1. Passing to processing.").arg(dummyFilePath));
+
+    // Directly call the processing method with the dummy path
+    processStyleAnalysisFile(dummyFilePath);
+}
+
+void AiController::processStyleAnalysisFile(const QString& filePath) {
+    // TODO: SECURITY - When implementing file parsing for style analysis (e.g., MusicXML, MIDI),
+    // use robust libraries designed to handle potentially malformed or malicious files.
+    // Implement thorough input validation, size checks, and resource limits during parsing
+    // and processing to prevent denial-of-service, crashes, or other exploits.
+    // Consider sandboxing the parsing process if possible.
+    // Also, be mindful of privacy if file content is logged or transmitted.
+    qDebug() << "AiController::processStyleAnalysisFile called with path:" << filePath;
+
+    emit generationStarted(QString("Processing style from file: %1...").arg(filePath));
+
+    // TODO: Here you would eventually:
+    // 1. Validate the file path (security check: ensure it's a safe path, not pointing to system files etc.).
+    // 2. Read and parse the music file (using secure parsers).
+    // 3. Perform AI style analysis on the parsed data.
+    // 4. Store the resulting style profile securely.
+
+    // Simulate processing delay and completion
+    QTimer::singleShot(1000, this, [this, filePath]() { // Shorter delay for this simulation
+        qDebug() << "Placeholder: Style analysis for file" << filePath << "would happen here.";
+        emit generationComplete(true, QString("Placeholder: Style analysis of %1 finished. Style profile would be ready.").arg(filePath));
+    });
+}
+
+void AiController::receiveMidiNoteForFeedback(int pitch, int velocity) {
+    qDebug() << "AiController::receiveMidiNoteForFeedback called with pitch:" << pitch << "velocity:" << velocity;
+
+    QString feedbackMessage;
+    if (pitch == m_targetMidiNote) {
+        feedbackMessage = QString("Correct! (Note: %1, Velocity: %2)").arg(pitch).arg(velocity);
+    } else if (pitch < m_targetMidiNote) {
+        feedbackMessage = QString("Too Low. (Played: %1, Target: %2, Velocity: %3)").arg(pitch).arg(m_targetMidiNote).arg(velocity);
+    } else { // pitch > m_targetMidiNote
+        feedbackMessage = QString("Too High. (Played: %1, Target: %2, Velocity: %3)").arg(pitch).arg(m_targetMidiNote).arg(velocity);
+    }
+    emit pitchFeedbackUpdate(feedbackMessage);
 }
 
 } // namespace Ai

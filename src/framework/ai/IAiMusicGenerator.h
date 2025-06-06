@@ -18,7 +18,7 @@ public:
 
     virtual bool generateMusic() = 0;
     // Using std::vector<char> as a placeholder for raw music data
-    virtual std::vector<char> getGeneratedMusicData() = 0; 
+    virtual std::vector<char> getGeneratedMusicData() = 0;
 };
 
 } // namespace Ai

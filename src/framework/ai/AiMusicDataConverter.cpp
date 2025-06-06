@@ -26,9 +26,9 @@ Engraving::Score* AiMusicDataConverter::convertToScore(const std::vector<char>& 
     // TODO: Implement actual conversion logic from AI-generated data to a Muse::Engraving::Score object.
     // This will involve parsing aiData and constructing the Score DOM.
     std::cout << "convertToScore called. AI data size: " << aiData.size() << " bytes. (Logic not implemented)" << std::endl;
-    
+
     // Placeholder: return nullptr until implementation.
-    return nullptr; 
+    return nullptr;
 }
 
 // Using void* as per the header file for now.
@@ -36,7 +36,7 @@ void* AiMusicDataConverter::convertToPlaybackStream(const std::vector<char>& aiD
     // TODO: Implement actual conversion logic from AI-generated data to a playback-compatible format.
     // This might involve creating a sequence of playback events or a stream object.
     std::cout << "convertToPlaybackStream called. AI data size: " << aiData.size() << " bytes. (Logic not implemented)" << std::endl;
-    
+
     // Placeholder: return nullptr until implementation.
     return nullptr;
 }

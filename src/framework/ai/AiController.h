@@ -31,18 +31,28 @@ public:
     ~AiController();
 
     Q_INVOKABLE void generateMusic(const QString& style, int tempo, const QString& key, int length);
-    Q_INVOKABLE void cocreateWithSelection(const QString& style, int tempo, const QString& key); // Signature changed
+    Q_INVOKABLE void cocreateWithSelection(const QString& style, int tempo, const QString& key);
+    Q_INVOKABLE void initiateStyleAnalysisFileSelection();
+    Q_INVOKABLE void processStyleAnalysisFile(const QString& filePath);
+    Q_INVOKABLE void initiateCustomModelSelection();
+    Q_INVOKABLE void setCustomModelPath(const QString& modelPath);
+    Q_INVOKABLE void receiveMidiNoteForFeedback(int pitch, int velocity); // New
 
 signals:
     void generationStarted(const QString& statusMessage);
     void generationComplete(bool success, const QString& resultMessageOrError);
     void musicDataReadyForPlayback(const QString& descriptionOfData);
+    void styleAnalysisFileSelectionRequested(const QString& message);
+    void customModelPathChanged(const QString& newPath);
+    void pitchFeedbackUpdate(const QString& feedbackMessage); // New
 
 private:
-    MusicSelectionContext extractMusicSelection(); // New private helper
+    MusicSelectionContext extractMusicSelection();
 
     IAiMusicGenerator* m_musicGenerator;
     AiMusicDataConverter* m_dataConverter;
+    QString m_customModelPath;
+    int m_targetMidiNote = 60; // Middle C, C++11 in-class initialization
 };
 
 } // namespace Ai
